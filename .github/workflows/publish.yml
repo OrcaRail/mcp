@@ -45,7 +45,15 @@ jobs:
 
       - name: Publish (dry run)
         if: github.event_name == 'workflow_dispatch' && inputs.dry_run
-        run: npm publish --dry-run
+        run: |
+          PKG_NAME="$(node -p "require('./package.json').name")"
+          PKG_VERSION="$(node -p "require('./package.json').version")"
+          if npm view "$PKG_NAME@$PKG_VERSION" version >/dev/null 2>&1; then
+            echo "$PKG_NAME@$PKG_VERSION already published — packing instead of dry-run publish."
+            npm pack
+          else
+            npm publish --dry-run
+          fi
 
       # Skips gracefully when the version is already on the registry,
       # so tagging after a manual publish stays green.
