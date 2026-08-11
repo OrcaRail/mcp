@@ -2,6 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { parseConfig } from '../src/config';
 import { createServer } from '../src/server';
 import { ALL_TOOLS, listToolNames, selectTools } from '../src/tools';
+import { DEFAULT_API_BASE, MISSING_CREDENTIALS_MESSAGE } from '../src/tools/types';
+import { errorResult } from '../src/result';
 
 describe('parseConfig', () => {
   afterEach(() => {
@@ -43,8 +45,11 @@ describe('parseConfig', () => {
     expect(config.apiSecret).toBe('sk_env');
   });
 
-  it('throws when credentials are missing', () => {
-    expect(() => parseConfig([])).toThrow(/Missing credentials/);
+  it('allows missing credentials (public tools still work)', () => {
+    const config = parseConfig([]);
+    expect(config.apiKey).toBeUndefined();
+    expect(config.apiSecret).toBeUndefined();
+    expect(config.tools).toBe('all');
   });
 });
 
@@ -80,6 +85,13 @@ describe('tool registration', () => {
     expect(names.length).toBe(25);
   });
 
+  it('marks rates and pay public; other tools require auth', () => {
+    for (const tool of ALL_TOOLS) {
+      const isPublic = tool.name.startsWith('rates.') || tool.name.startsWith('pay.');
+      expect(tool.requiresAuth).toBe(!isPublic);
+    }
+  });
+
   it('filters tools via --tools', () => {
     const selected = selectTools(new Set(['payment_intents.create', 'rates.list_currencies']));
     expect(selected.map((t) => t.name).sort()).toEqual([
@@ -95,6 +107,13 @@ describe('tool registration', () => {
       tools: new Set(['payment_intents.retrieve']),
     });
     expect(tools.map((t) => t.name)).toEqual(['payment_intents.retrieve']);
+  });
+
+  it('starts without credentials and leaves client undefined', () => {
+    const { tools, ctx } = createServer({ tools: 'all' });
+    expect(ctx.client).toBeUndefined();
+    expect(ctx.apiBase).toBe(DEFAULT_API_BASE);
+    expect(tools.length).toBe(ALL_TOOLS.length);
   });
 });
 
@@ -141,5 +160,51 @@ describe('tool call', () => {
     expect(init.method).toBe('GET');
     const headers = init.headers as Record<string, string>;
     expect(headers.Authorization).toMatch(/^Basic /);
+  });
+
+  it('private tool without credentials surfaces a clear missing-credentials error', async () => {
+    const { tools, ctx } = createServer({
+      tools: new Set(['payment_intents.retrieve']),
+    });
+    const tool = tools[0];
+    expect(tool.requiresAuth).toBe(true);
+
+    await expect(tool.handler({ id: 'pi_123' }, ctx)).rejects.toThrow(
+      MISSING_CREDENTIALS_MESSAGE
+    );
+
+    // Server wrapper converts to MCP errorResult
+    const wrapped = errorResult(new Error(MISSING_CREDENTIALS_MESSAGE));
+    expect(wrapped.isError).toBe(true);
+    expect(wrapped.content[0].text).toBe(MISSING_CREDENTIALS_MESSAGE);
+  });
+
+  it('public rates.list_currencies works without credentials and skips Authorization', async () => {
+    const fetchMock = vi.fn(async () => {
+      return new Response(JSON.stringify([{ code: 'usd', name: 'US Dollar' }]), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { ctx, tools } = createServer({
+      apiBase: 'https://api.example.com/api/v1',
+      tools: new Set(['rates.list_currencies']),
+    });
+
+    const tool = tools[0];
+    expect(tool.requiresAuth).toBe(false);
+    expect(ctx.client).toBeUndefined();
+
+    const result = await tool.handler({}, ctx);
+
+    expect(result).toEqual([{ code: 'usd', name: 'US Dollar' }]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toMatch(/^https:\/\/api\.example\.com\/api\/v1\/rates\/currencies\?/);
+    expect(init.method).toBe('GET');
+    const headers = init.headers as Record<string, string>;
+    expect(headers.Authorization).toBeUndefined();
   });
 });

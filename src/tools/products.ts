@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { ToolDefinition } from './types';
-import { resolveOrganizationId } from './types';
+import { requireClient, resolveOrganizationId } from './types';
 
 const metadataSchema = z.record(z.unknown()).optional();
 
@@ -8,6 +8,7 @@ export const productTools: ToolDefinition[] = [
   {
     name: 'products.list',
     description: 'List catalog products for an organization',
+    requiresAuth: true,
     inputSchema: z.object({
       organization_id: z
         .string()
@@ -16,12 +17,13 @@ export const productTools: ToolDefinition[] = [
     }),
     handler: async (args, ctx) => {
       const orgId = resolveOrganizationId(args as { organization_id?: string }, ctx);
-      return ctx.client.products.list(orgId);
+      return requireClient(ctx).products.list(orgId);
     },
   },
   {
     name: 'products.create',
     description: 'Create a catalog product',
+    requiresAuth: true,
     inputSchema: z.object({
       organization_id: z.string().optional(),
       name: z.string(),
@@ -38,17 +40,19 @@ export const productTools: ToolDefinition[] = [
       livemode: z.boolean().optional(),
     }),
     handler: async (args, ctx) => {
+      const client = requireClient(ctx);
       const { organization_id, ...params } = args;
       const orgId = resolveOrganizationId({ organization_id: organization_id as string | undefined }, ctx);
-      return ctx.client.products.create(
+      return client.products.create(
         orgId,
-        params as unknown as Parameters<typeof ctx.client.products.create>[1]
+        params as unknown as Parameters<typeof client.products.create>[1]
       );
     },
   },
   {
     name: 'products.update',
     description: 'Update a catalog product',
+    requiresAuth: true,
     inputSchema: z.object({
       organization_id: z.string().optional(),
       product_id: z.string().describe('Product ID'),
@@ -66,18 +70,20 @@ export const productTools: ToolDefinition[] = [
       livemode: z.boolean().optional(),
     }),
     handler: async (args, ctx) => {
+      const client = requireClient(ctx);
       const { organization_id, product_id, ...params } = args;
       const orgId = resolveOrganizationId({ organization_id: organization_id as string | undefined }, ctx);
-      return ctx.client.products.update(
+      return client.products.update(
         orgId,
         String(product_id),
-        params as unknown as Parameters<typeof ctx.client.products.update>[2]
+        params as unknown as Parameters<typeof client.products.update>[2]
       );
     },
   },
   {
     name: 'products.delete',
     description: 'Delete a catalog product',
+    requiresAuth: true,
     inputSchema: z.object({
       organization_id: z.string().optional(),
       product_id: z.string().describe('Product ID'),
@@ -87,7 +93,7 @@ export const productTools: ToolDefinition[] = [
         { organization_id: args.organization_id as string | undefined },
         ctx
       );
-      return ctx.client.products.delete(orgId, String(args.product_id));
+      return requireClient(ctx).products.delete(orgId, String(args.product_id));
     },
   },
 ];

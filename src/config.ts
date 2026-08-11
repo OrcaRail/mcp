@@ -29,6 +29,9 @@ function parseTools(raw: string | undefined): McpConfig['tools'] {
  * Parse CLI args and environment into MCP config.
  * Flags: --api-key, --api-secret, --api-base, --organization-id, --tools
  * Env: ORCARAIL_API_KEY, ORCARAIL_API_SECRET, ORCARAIL_API_BASE, ORCARAIL_ORGANIZATION_ID
+ *
+ * Credentials are optional at startup. Public tools (rates.*, pay.*) work without them;
+ * private tools return a clear error when credentials are missing.
  */
 export function parseConfig(argv: string[] = process.argv.slice(2)): McpConfig {
   const apiKey =
@@ -42,15 +45,9 @@ export function parseConfig(argv: string[] = process.argv.slice(2)): McpConfig {
     readFlag(argv, 'organization-id') ?? process.env.ORCARAIL_ORGANIZATION_ID;
   const tools = parseTools(readFlag(argv, 'tools'));
 
-  if (!apiKey || !apiSecret) {
-    throw new Error(
-      'Missing credentials. Pass --api-key and --api-secret, or set ORCARAIL_API_KEY and ORCARAIL_API_SECRET.'
-    );
-  }
-
   return {
-    apiKey,
-    apiSecret,
+    apiKey: apiKey || undefined,
+    apiSecret: apiSecret || undefined,
     apiBase: apiBase || undefined,
     organizationId: organizationId || undefined,
     tools,
@@ -67,7 +64,11 @@ Options:
   --organization-id=ID       Default organization for catalog tools
   --tools=all|a,b,c          Tool filter (default: all)
 
+Credentials are optional for public tools (rates.*, pay.*).
+Private tools require ORCARAIL_API_KEY and ORCARAIL_API_SECRET (or the flags above).
+
 Examples:
+  npx -y @orcarail/mcp --tools=all
   npx -y @orcarail/mcp --tools=all --api-key=ak_live_xxx --api-secret=sk_live_xxx
   npx -y @orcarail/mcp --tools=payment_intents.create,subscriptions.list --api-key=...
 `);
