@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { ToolDefinition } from './types';
-import { resolveOrganizationId } from './types';
+import { requireClient, resolveOrganizationId } from './types';
 
 const metadataSchema = z.record(z.unknown()).optional();
 
@@ -8,6 +8,7 @@ export const priceTools: ToolDefinition[] = [
   {
     name: 'prices.list',
     description: 'List catalog prices for an organization',
+    requiresAuth: true,
     inputSchema: z.object({
       organization_id: z.string().optional(),
       active: z.boolean().optional(),
@@ -15,17 +16,19 @@ export const priceTools: ToolDefinition[] = [
       limit: z.number().optional(),
     }),
     handler: async (args, ctx) => {
+      const client = requireClient(ctx);
       const { organization_id, ...params } = args;
       const orgId = resolveOrganizationId({ organization_id: organization_id as string | undefined }, ctx);
-      return ctx.client.prices.list(
+      return client.prices.list(
         orgId,
-        params as unknown as Parameters<typeof ctx.client.prices.list>[1]
+        params as unknown as Parameters<typeof client.prices.list>[1]
       );
     },
   },
   {
     name: 'prices.create',
     description: 'Create a catalog price (one-time or recurring)',
+    requiresAuth: true,
     inputSchema: z.object({
       organization_id: z.string().optional(),
       product: z.string().optional().describe('Existing product ID'),
@@ -57,17 +60,19 @@ export const priceTools: ToolDefinition[] = [
       metadata: metadataSchema,
     }),
     handler: async (args, ctx) => {
+      const client = requireClient(ctx);
       const { organization_id, ...params } = args;
       const orgId = resolveOrganizationId({ organization_id: organization_id as string | undefined }, ctx);
-      return ctx.client.prices.create(
+      return client.prices.create(
         orgId,
-        params as unknown as Parameters<typeof ctx.client.prices.create>[1]
+        params as unknown as Parameters<typeof client.prices.create>[1]
       );
     },
   },
   {
     name: 'prices.update',
     description: 'Update a catalog price',
+    requiresAuth: true,
     inputSchema: z.object({
       organization_id: z.string().optional(),
       price_id: z.string().describe('Price ID'),
@@ -91,18 +96,20 @@ export const priceTools: ToolDefinition[] = [
       metadata: z.record(z.unknown()).nullable().optional(),
     }),
     handler: async (args, ctx) => {
+      const client = requireClient(ctx);
       const { organization_id, price_id, ...params } = args;
       const orgId = resolveOrganizationId({ organization_id: organization_id as string | undefined }, ctx);
-      return ctx.client.prices.update(
+      return client.prices.update(
         orgId,
         String(price_id),
-        params as unknown as Parameters<typeof ctx.client.prices.update>[2]
+        params as unknown as Parameters<typeof client.prices.update>[2]
       );
     },
   },
   {
     name: 'prices.deactivate',
     description: 'Deactivate a catalog price',
+    requiresAuth: true,
     inputSchema: z.object({
       organization_id: z.string().optional(),
       price_id: z.string().describe('Price ID'),
@@ -112,7 +119,7 @@ export const priceTools: ToolDefinition[] = [
         { organization_id: args.organization_id as string | undefined },
         ctx
       );
-      return ctx.client.prices.deactivate(orgId, String(args.price_id));
+      return requireClient(ctx).prices.deactivate(orgId, String(args.price_id));
     },
   },
 ];

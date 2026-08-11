@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { ToolDefinition } from './types';
+import { requireClient } from './types';
 
 const dateFilter = z
   .object({
@@ -18,6 +19,7 @@ export const subscriptionTools: ToolDefinition[] = [
     name: 'subscriptions.create',
     description:
       'Create a subscription. Provide either price_id or amount+currency+token_id+network_id+interval.',
+    requiresAuth: true,
     inputSchema: z.object({
       description: z.string(),
       collection_method: z.enum(['send_payment_link', 'auto_charge']).optional(),
@@ -43,24 +45,27 @@ export const subscriptionTools: ToolDefinition[] = [
       network_id: z.string().optional(),
     }),
     handler: async (args, ctx) => {
-      return ctx.client.subscriptions.create(
-        args as unknown as Parameters<typeof ctx.client.subscriptions.create>[0]
+      const client = requireClient(ctx);
+      return client.subscriptions.create(
+        args as unknown as Parameters<typeof client.subscriptions.create>[0]
       );
     },
   },
   {
     name: 'subscriptions.retrieve',
     description: 'Retrieve a subscription by ID',
+    requiresAuth: true,
     inputSchema: z.object({
       id: z.string().describe('Subscription ID'),
     }),
     handler: async (args, ctx) => {
-      return ctx.client.subscriptions.retrieve(String(args.id));
+      return requireClient(ctx).subscriptions.retrieve(String(args.id));
     },
   },
   {
     name: 'subscriptions.update',
     description: 'Update a subscription',
+    requiresAuth: true,
     inputSchema: z.object({
       id: z.string().describe('Subscription ID'),
       price_id: z.string().optional(),
@@ -84,16 +89,18 @@ export const subscriptionTools: ToolDefinition[] = [
       cancel_url: z.string().nullable().optional(),
     }),
     handler: async (args, ctx) => {
+      const client = requireClient(ctx);
       const { id, ...params } = args;
-      return ctx.client.subscriptions.update(
+      return client.subscriptions.update(
         String(id),
-        params as unknown as Parameters<typeof ctx.client.subscriptions.update>[1]
+        params as unknown as Parameters<typeof client.subscriptions.update>[1]
       );
     },
   },
   {
     name: 'subscriptions.cancel',
     description: 'Cancel a subscription (immediate)',
+    requiresAuth: true,
     inputSchema: z.object({
       id: z.string().describe('Subscription ID'),
       cancellation_details: z
@@ -107,7 +114,7 @@ export const subscriptionTools: ToolDefinition[] = [
     }),
     handler: async (args, ctx) => {
       const { id, cancellation_details } = args;
-      return ctx.client.subscriptions.cancel(
+      return requireClient(ctx).subscriptions.cancel(
         String(id),
         cancellation_details
           ? { cancellation_details: cancellation_details as { comment?: string; feedback?: 'too_expensive' | 'missing_features' | 'switched_service' | 'unused' | 'other' } }
@@ -118,16 +125,18 @@ export const subscriptionTools: ToolDefinition[] = [
   {
     name: 'subscriptions.resume',
     description: 'Resume a paused subscription',
+    requiresAuth: true,
     inputSchema: z.object({
       id: z.string().describe('Subscription ID'),
     }),
     handler: async (args, ctx) => {
-      return ctx.client.subscriptions.resume(String(args.id));
+      return requireClient(ctx).subscriptions.resume(String(args.id));
     },
   },
   {
     name: 'subscriptions.list',
     description: 'List subscriptions with optional filters and cursor pagination',
+    requiresAuth: true,
     inputSchema: z.object({
       status: z
         .enum(['trialing', 'active', 'past_due', 'canceled', 'paused', 'completed'])
@@ -141,14 +150,16 @@ export const subscriptionTools: ToolDefinition[] = [
       ending_before: z.string().optional(),
     }),
     handler: async (args, ctx) => {
-      return ctx.client.subscriptions.list(
-        args as unknown as Parameters<typeof ctx.client.subscriptions.list>[0]
+      const client = requireClient(ctx);
+      return client.subscriptions.list(
+        args as unknown as Parameters<typeof client.subscriptions.list>[0]
       );
     },
   },
   {
     name: 'subscriptions.list_payment_links',
     description: 'List payment links (cycle invoices) for a subscription',
+    requiresAuth: true,
     inputSchema: z.object({
       id: z.string().describe('Subscription ID'),
       limit: z.number().optional(),
@@ -156,10 +167,11 @@ export const subscriptionTools: ToolDefinition[] = [
       ending_before: z.string().optional(),
     }),
     handler: async (args, ctx) => {
+      const client = requireClient(ctx);
       const { id, ...params } = args;
-      return ctx.client.subscriptions.listPaymentLinks(
+      return client.subscriptions.listPaymentLinks(
         String(id),
-        params as unknown as Parameters<typeof ctx.client.subscriptions.listPaymentLinks>[1]
+        params as unknown as Parameters<typeof client.subscriptions.listPaymentLinks>[1]
       );
     },
   },

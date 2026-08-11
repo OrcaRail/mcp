@@ -18,15 +18,18 @@ Runs locally over stdio and wraps the [`@orcarail/node`](https://www.npmjs.com/p
 ## Requirements
 
 - Node.js 18+
-- OrcaRail API key (`ak_…`) and secret (`sk_…`) from the [dashboard](https://app.orcarail.com)
+- For private tools (payment intents, subscriptions, catalog): an OrcaRail API key (`ak_…`) and secret (`sk_…`) from the [dashboard](https://app.orcarail.com)
+- Public tools (`rates.*`, `pay.*`) work with no credentials
 
 ## Quick start
 
+Public rates/pay tools need no credentials:
+
 ```bash
-npx -y @orcarail/mcp --tools=all --api-key=ak_live_xxx --api-secret=sk_live_xxx
+npx -y @orcarail/mcp --tools=all
 ```
 
-Or with environment variables (preferred — keeps secrets out of shell history):
+For private tools, set environment variables (preferred — keeps secrets out of shell history):
 
 ```bash
 export ORCARAIL_API_KEY=ak_live_xxx
@@ -34,16 +37,22 @@ export ORCARAIL_API_SECRET=sk_live_xxx
 npx -y @orcarail/mcp --tools=all
 ```
 
+Or pass flags:
+
+```bash
+npx -y @orcarail/mcp --tools=all --api-key=ak_live_xxx --api-secret=sk_live_xxx
+```
+
 The server speaks MCP over stdin/stdout; it is meant to be launched by an MCP client, not used interactively. `npx -y @orcarail/mcp --help` prints usage.
 
 ## Configuration
 
-Every option is a CLI flag or an environment variable. Flags win.
+Every option is a CLI flag or an environment variable. Flags win. Prefer env for secrets.
 
 | Flag | Environment variable | Required | Description |
 | --- | --- | --- | --- |
-| `--api-key` | `ORCARAIL_API_KEY` | Yes | API key (`ak_…`) |
-| `--api-secret` | `ORCARAIL_API_SECRET` | Yes | API secret (`sk_…`) |
+| `--api-key` | `ORCARAIL_API_KEY` | For private tools | API key (`ak_…`) |
+| `--api-secret` | `ORCARAIL_API_SECRET` | For private tools | API secret (`sk_…`) |
 | `--api-base` | `ORCARAIL_API_BASE` | No | API base URL. Default `https://api.orcarail.com/api/v1` |
 | `--organization-id` | `ORCARAIL_ORGANIZATION_ID` | No | Default organization for `products.*` / `prices.*` tools |
 | `--tools` | — | No | `all` (default) or comma-separated tool names |
@@ -162,7 +171,7 @@ Catalog tools operate on an organization: pass `organization_id` per call or set
 | `prices.update` | `price_id` + updatable fields | Update a price |
 | `prices.deactivate` | `price_id` | Deactivate a price |
 
-### Rates and pay
+### Rates and pay (public — no credentials required)
 
 | Tool | Arguments | Description |
 | --- | --- | --- |
@@ -175,6 +184,8 @@ Catalog tools operate on an organization: pass `organization_id` per call or set
 
 API failures surface to the agent as tool errors with the HTTP status, error type, and message intact, e.g. `API error (401): [authentication_error]: …`. Nothing is retried automatically.
 
+Calling a private tool without credentials returns a clear tool error telling you to set `ORCARAIL_API_KEY` and `ORCARAIL_API_SECRET` (or the matching flags).
+
 ## Programmatic usage
 
 The package also exports its building blocks if you want to embed the server:
@@ -183,8 +194,9 @@ The package also exports its building blocks if you want to embed the server:
 import { createServer, startStdioServer, listToolNames } from '@orcarail/mcp';
 
 const { server, tools } = createServer({
-  apiKey: process.env.ORCARAIL_API_KEY!,
-  apiSecret: process.env.ORCARAIL_API_SECRET!,
+  // Optional — omit for public rates/pay only
+  apiKey: process.env.ORCARAIL_API_KEY,
+  apiSecret: process.env.ORCARAIL_API_SECRET,
   tools: 'all', // or new Set(['payment_intents.create'])
 });
 
@@ -204,7 +216,7 @@ await startStdioServer(server);
 
 | Symptom | Fix |
 | --- | --- |
-| `Missing credentials` on startup | Pass `--api-key`/`--api-secret` or set `ORCARAIL_API_KEY`/`ORCARAIL_API_SECRET` |
+| `Missing credentials for this tool` | Set `ORCARAIL_API_KEY`/`ORCARAIL_API_SECRET` (or `--api-key`/`--api-secret`) for private tools |
 | `Authentication error` on every call | Verify the key/secret pair; don't mix test and live credentials |
 | `organization_id is required` | Pass `organization_id` in the call or launch with `--organization-id` |
 | Tool missing from the client | Check the `--tools` filter — names must match exactly |

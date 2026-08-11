@@ -26,4 +26,10 @@ export function selectTools(tools: McpConfig['tools']): ToolDefinition[] {
 }
 
 export type { McpConfig, ToolContext, ToolDefinition } from './types';
-export { resolveOrganizationId, toolAllowed } from './types';
+export {
+  DEFAULT_API_BASE,
+  MISSING_CREDENTIALS_MESSAGE,
+  requireClient,
+  resolveOrganizationId,
+  toolAllowed,
+} from './types';

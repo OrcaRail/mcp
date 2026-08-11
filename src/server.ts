@@ -3,6 +3,10 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import OrcaRail from '@orcarail/node';
 import type { McpConfig, ToolContext, ToolDefinition } from './tools';
 import { selectTools } from './tools';
+import {
+  DEFAULT_API_BASE,
+  MISSING_CREDENTIALS_MESSAGE,
+} from './tools/types';
 import { errorResult, jsonResult } from './result';
 import packageJson from '../package.json';
 
@@ -13,12 +17,18 @@ export interface CreatedServer {
 }
 
 export function createServer(config: McpConfig): CreatedServer {
-  const client = new OrcaRail(config.apiKey, config.apiSecret, {
-    baseUrl: config.apiBase,
-  });
+  const apiBase = config.apiBase || DEFAULT_API_BASE;
+  const hasCredentials = Boolean(config.apiKey && config.apiSecret);
+
+  const client = hasCredentials
+    ? new OrcaRail(config.apiKey!, config.apiSecret!, {
+        baseUrl: apiBase,
+      })
+    : undefined;
 
   const ctx: ToolContext = {
     client,
+    apiBase,
     organizationId: config.organizationId,
   };
 
@@ -37,6 +47,9 @@ export function createServer(config: McpConfig): CreatedServer {
         inputSchema: tool.inputSchema.shape,
       },
       async (args: Record<string, unknown>) => {
+        if (tool.requiresAuth && !ctx.client) {
+          return errorResult(new Error(MISSING_CREDENTIALS_MESSAGE));
+        }
         try {
           const result = await tool.handler(args, ctx);
           return jsonResult(result);

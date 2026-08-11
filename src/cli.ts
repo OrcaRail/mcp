@@ -9,15 +9,7 @@ async function main(): Promise<void> {
     process.exit(0);
   }
 
-  let config;
-  try {
-    config = parseConfig(argv);
-  } catch (err) {
-    process.stderr.write(`${err instanceof Error ? err.message : String(err)}\n\n`);
-    printUsage();
-    process.exit(1);
-  }
-
+  const config = parseConfig(argv);
   const { server } = createServer(config);
   await startStdioServer(server);
 }
