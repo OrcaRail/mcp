@@ -9,7 +9,11 @@ export const paymentIntentTools: ToolDefinition[] = [
   {
     name: 'payment_intents.create',
     description:
-      'Create a Payment Intent. Provide either price_id (catalog) or amount+currency+tokenId+networkId.',
+      'Create a Payment Intent. Provide either price_id (a catalog price) or all of ' +
+      'amount + currency + tokenId + networkId. tokenId and networkId are UUIDs from the ' +
+      'OrcaRail Networks and Tokens reference; no tool in this server lists them, so prefer ' +
+      'price_id when the user has a catalog price. Returns the intent, including client_secret ' +
+      '(needed by payment_intents.confirm) and the hosted payment link.',
     requiresAuth: true,
     inputSchema: z.object({
       return_url: z.string().describe('URL to redirect after payment'),
