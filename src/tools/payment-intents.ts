@@ -9,7 +9,11 @@ export const paymentIntentTools: ToolDefinition[] = [
   {
     name: 'payment_intents.create',
     description:
-      'Create a Payment Intent. Provide either price_id (catalog) or amount+currency+tokenId+networkId.',
+      'Create a Payment Intent. Provide either price_id (a catalog price) or all of ' +
+      'amount + currency + tokenId + networkId. tokenId and networkId are UUIDs from the ' +
+      'OrcaRail Networks and Tokens reference; no tool in this server lists them, so prefer ' +
+      'price_id when the user has a catalog price. Returns the intent, including client_secret ' +
+      '(needed by payment_intents.confirm) and the hosted payment link.',
     requiresAuth: true,
     inputSchema: z.object({
       return_url: z.string().describe('URL to redirect after payment'),
@@ -101,7 +105,10 @@ export const paymentIntentTools: ToolDefinition[] = [
   },
   {
     name: 'payment_intents.cancel',
-    description: 'Cancel a Payment Intent',
+    description:
+      'Cancel a Payment Intent by ID. Returns the cancelled intent. Check its status with ' +
+      'payment_intents.retrieve first when the customer may already have paid. To cancel from a ' +
+      'hosted pay slug without credentials, use pay.cancel_by_slug.',
     requiresAuth: true,
     inputSchema: z.object({
       id: z.string().describe('Payment Intent ID'),

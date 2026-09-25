@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-09-25
+
+### Fixed
+
+- Tool descriptions now document the API contract agents need:
+  - `payment_intents.create` and `subscriptions.create`: where `tokenId`/`token_id` and `networkId`/`network_id` come from, what the response contains, and what each `collection_method` does.
+  - `pay.cancel_by_slug`: works without credentials for anyone holding the slug.
+  - `payment_intents.cancel`, `products.delete`, `prices.deactivate`: behavior and safer alternatives (`products.delete` is permanent and fails while prices are in use; `prices.deactivate` sets `active: false`).
+  - `organization_id` on every catalog tool explains the `--organization-id` fallback.
+
 ## [1.1.1] - 2026-09-25
 
 ### Fixed
