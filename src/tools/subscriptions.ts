@@ -18,7 +18,11 @@ export const subscriptionTools: ToolDefinition[] = [
   {
     name: 'subscriptions.create',
     description:
-      'Create a subscription. Provide either price_id or amount+currency+token_id+network_id+interval.',
+      'Create a recurring subscription. Provide either price_id (a recurring catalog price) or ' +
+      'all of amount + currency + token_id + network_id + interval. token_id and network_id are ' +
+      'UUIDs from the OrcaRail Networks and Tokens reference; no tool in this server lists them. ' +
+      'collection_method send_payment_link creates a payment link each cycle (optionally emailed); ' +
+      'auto_charge charges automatically. Returns the subscription object.',
     requiresAuth: true,
     inputSchema: z.object({
       description: z.string(),
