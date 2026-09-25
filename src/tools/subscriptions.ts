@@ -99,7 +99,13 @@ export const subscriptionTools: ToolDefinition[] = [
   },
   {
     name: 'subscriptions.cancel',
-    description: 'Cancel a subscription (immediate)',
+    description:
+      'Cancel a subscription. Cancels immediately, unless cancel_at_period_end was already set ' +
+      'on it, in which case it ends at the current period end. To schedule a period-end ' +
+      'cancellation, call subscriptions.update with cancel_at_period_end: true (or cancel_at for ' +
+      'a specific date) instead of this tool. Optional cancellation_details records the reason ' +
+      '(comment; feedback one of too_expensive, missing_features, switched_service, unused, other). ' +
+      'Returns the subscription object.',
     requiresAuth: true,
     inputSchema: z.object({
       id: z.string().describe('Subscription ID'),
