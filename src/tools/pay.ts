@@ -19,7 +19,10 @@ export const payTools: ToolDefinition[] = [
   },
   {
     name: 'pay.cancel_by_slug',
-    description: 'Cancel a payment intent by hosted pay slug',
+    description:
+      'Cancel the payment intent behind a hosted pay page, identified by the slug in its ' +
+      'payment link URL. Works without API credentials: anyone holding the slug can call it. ' +
+      'To cancel by Payment Intent ID with credentials, use payment_intents.cancel.',
     requiresAuth: false,
     inputSchema: z.object({
       slug: z.string().describe('Pay slug from the payment link URL'),
