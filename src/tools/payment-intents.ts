@@ -105,7 +105,10 @@ export const paymentIntentTools: ToolDefinition[] = [
   },
   {
     name: 'payment_intents.cancel',
-    description: 'Cancel a Payment Intent',
+    description:
+      'Cancel a Payment Intent by ID. Returns the cancelled intent. Check its status with ' +
+      'payment_intents.retrieve first when the customer may already have paid. To cancel from a ' +
+      'hosted pay slug without credentials, use pay.cancel_by_slug.',
     requiresAuth: true,
     inputSchema: z.object({
       id: z.string().describe('Payment Intent ID'),

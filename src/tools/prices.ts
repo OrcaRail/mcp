@@ -108,7 +108,9 @@ export const priceTools: ToolDefinition[] = [
   },
   {
     name: 'prices.deactivate',
-    description: 'Deactivate a catalog price',
+    description:
+      'Deactivate a catalog price (it is marked inactive, not deleted). Reverse with ' +
+      'prices.update active: true.',
     requiresAuth: true,
     inputSchema: z.object({
       organization_id: z.string().optional(),

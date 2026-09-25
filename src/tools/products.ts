@@ -82,7 +82,10 @@ export const productTools: ToolDefinition[] = [
   },
   {
     name: 'products.delete',
-    description: 'Delete a catalog product',
+    description:
+      'Permanently delete a catalog product from an organization. Fails while any of its ' +
+      'prices is in use by subscriptions or payment links. To stop selling a product without ' +
+      'deleting it, use products.update with active: false instead.',
     requiresAuth: true,
     inputSchema: z.object({
       organization_id: z.string().optional(),
