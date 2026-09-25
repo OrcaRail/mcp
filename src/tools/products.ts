@@ -25,7 +25,10 @@ export const productTools: ToolDefinition[] = [
     description: 'Create a catalog product',
     requiresAuth: true,
     inputSchema: z.object({
-      organization_id: z.string().optional(),
+      organization_id: z
+        .string()
+        .optional()
+        .describe('Organization ID (falls back to --organization-id)'),
       name: z.string(),
       description: z.string().nullable().optional(),
       active: z.boolean().optional(),
@@ -54,7 +57,10 @@ export const productTools: ToolDefinition[] = [
     description: 'Update a catalog product',
     requiresAuth: true,
     inputSchema: z.object({
-      organization_id: z.string().optional(),
+      organization_id: z
+        .string()
+        .optional()
+        .describe('Organization ID (falls back to --organization-id)'),
       product_id: z.string().describe('Product ID'),
       name: z.string().optional(),
       description: z.string().nullable().optional(),
@@ -88,7 +94,10 @@ export const productTools: ToolDefinition[] = [
       'deleting it, use products.update with active: false instead.',
     requiresAuth: true,
     inputSchema: z.object({
-      organization_id: z.string().optional(),
+      organization_id: z
+        .string()
+        .optional()
+        .describe('Organization ID (falls back to --organization-id)'),
       product_id: z.string().describe('Product ID'),
     }),
     handler: async (args, ctx) => {

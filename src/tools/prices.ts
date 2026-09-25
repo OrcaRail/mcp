@@ -10,7 +10,10 @@ export const priceTools: ToolDefinition[] = [
     description: 'List catalog prices for an organization',
     requiresAuth: true,
     inputSchema: z.object({
-      organization_id: z.string().optional(),
+      organization_id: z
+        .string()
+        .optional()
+        .describe('Organization ID (falls back to --organization-id)'),
       active: z.boolean().optional(),
       recurring: z.boolean().optional(),
       limit: z.number().optional(),
@@ -30,7 +33,10 @@ export const priceTools: ToolDefinition[] = [
     description: 'Create a catalog price (one-time or recurring)',
     requiresAuth: true,
     inputSchema: z.object({
-      organization_id: z.string().optional(),
+      organization_id: z
+        .string()
+        .optional()
+        .describe('Organization ID (falls back to --organization-id)'),
       product: z.string().optional().describe('Existing product ID'),
       product_data: z
         .object({
@@ -74,7 +80,10 @@ export const priceTools: ToolDefinition[] = [
     description: 'Update a catalog price',
     requiresAuth: true,
     inputSchema: z.object({
-      organization_id: z.string().optional(),
+      organization_id: z
+        .string()
+        .optional()
+        .describe('Organization ID (falls back to --organization-id)'),
       price_id: z.string().describe('Price ID'),
       product: z.string().optional(),
       nickname: z.string().nullable().optional(),
@@ -113,7 +122,10 @@ export const priceTools: ToolDefinition[] = [
       'prices.update active: true.',
     requiresAuth: true,
     inputSchema: z.object({
-      organization_id: z.string().optional(),
+      organization_id: z
+        .string()
+        .optional()
+        .describe('Organization ID (falls back to --organization-id)'),
       price_id: z.string().describe('Price ID'),
     }),
     handler: async (args, ctx) => {
