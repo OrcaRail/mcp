@@ -40,7 +40,6 @@ export const productTools: ToolDefinition[] = [
       unit_label: z.string().nullable().optional(),
       shippable: z.boolean().nullable().optional(),
       url: z.string().nullable().optional(),
-      livemode: z.boolean().optional(),
     }),
     handler: async (args, ctx) => {
       const client = requireClient(ctx);
@@ -73,7 +72,6 @@ export const productTools: ToolDefinition[] = [
       unit_label: z.string().nullable().optional(),
       shippable: z.boolean().nullable().optional(),
       url: z.string().nullable().optional(),
-      livemode: z.boolean().optional(),
     }),
     handler: async (args, ctx) => {
       const client = requireClient(ctx);
