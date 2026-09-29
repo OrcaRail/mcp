@@ -117,4 +117,36 @@ export const paymentIntentTools: ToolDefinition[] = [
       return requireClient(ctx).paymentIntents.cancel(String(args.id));
     },
   },
+  {
+    name: 'payment_intents.simulate',
+    description:
+      'SANDBOX ONLY. Completes a payment intent without an on-chain transfer (no wallet or ' +
+      'faucet needed) and fires the usual webhooks, so the whole flow can be tested. ' +
+      'Simulated payments are never withdrawable. The API rejects live organizations.',
+    requiresAuth: true,
+    sandboxOnly: true,
+    inputSchema: z.object({
+      id: z.string().describe('Payment intent id'),
+    }),
+    handler: async (args, ctx) => {
+      requireClient(ctx);
+      const res = await fetch(
+        `${ctx.apiBase.replace(/\/$/, '')}/payment_intents/${encodeURIComponent(String(args.id))}/simulate`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Basic ${Buffer.from(`${ctx.apiKey}:${ctx.apiSecret}`).toString('base64')}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      const body = await res.json().catch(() => null);
+      if (!res.ok) {
+        throw new Error(
+          `Simulate failed (${res.status}): ${JSON.stringify(body)}`
+        );
+      }
+      return body;
+    },
+  },
 ];

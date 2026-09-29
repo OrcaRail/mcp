@@ -127,6 +127,18 @@ ORCARAIL_API_SECRET = "sk_live_xxx"
 
 Any stdio-capable MCP client works with the same shape: command `npx`, args `["-y", "@orcarail/mcp", "--tools=all"]`, credentials in env. For Claude Desktop, use the Cursor JSON block in `claude_desktop_config.json`.
 
+## Live vs sandbox
+
+The server detects the mode from your API key and tells the agent about it through its MCP instructions and the `account.get_mode` tool.
+
+| Key | Mode | What it means |
+| --- | --- | --- |
+| `ak_test_…` | **Sandbox** | A sandbox organization: testnets only, no real funds. `payment_intents.simulate` is available. |
+| `ak_live_…` | **Live** | Real funds on mainnet networks. The agent is asked to confirm with you before any write. |
+| none | Public | Only the public tools (`rates.*`, `pay.*`, `account.get_mode`). |
+
+Use a sandbox key while you build with an agent. You can create one from the **Go to sandbox** button in the OrcaRail dashboard (see [Sandbox](https://docs.orcarail.com/docs/sandbox/overview/)). Switch to a live key only when you are ready.
+
 ## Tool reference
 
 Tool names follow `resource.action`. Responses are raw OrcaRail API objects as JSON.
@@ -141,6 +153,7 @@ Tool names follow `resource.action`. Responses are raw OrcaRail API objects as J
 | `payment_intents.confirm` | `id`, `client_secret`, `return_url` | Confirm and get the hosted pay redirect URL |
 | `payment_intents.complete` | `id` | Mark processing after the customer hits your success URL |
 | `payment_intents.cancel` | `id` | Cancel the intent |
+| `payment_intents.simulate` | `id` | **Sandbox keys only.** Complete the payment without a wallet, firing the usual webhooks |
 
 `tokenId` / `networkId` are UUIDs — see [Networks and Tokens](https://docs.orcarail.com/docs/reference/networks-and-tokens/).
 
@@ -179,6 +192,7 @@ Catalog tools operate on an organization: pass `organization_id` per call or set
 | `rates.list_currencies` | optional `active` | Supported fiat currencies |
 | `pay.get_by_slug` | `slug` | Payment details by hosted pay slug |
 | `pay.cancel_by_slug` | `slug` | Cancel by pay slug |
+| `account.get_mode` | — | Live, sandbox or public mode of this server (see [Live vs sandbox](#live-vs-sandbox)) |
 
 ## Error handling
 

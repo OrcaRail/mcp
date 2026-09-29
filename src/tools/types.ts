@@ -15,11 +15,27 @@ export interface McpConfig {
   tools: 'all' | Set<string>;
 }
 
+/**
+ * `sandbox`: an `ak_test_` key of a sandbox organization (testnets, no real funds).
+ * `live`: an `ak_live_` key (real funds). `public`: no key, public tools only.
+ */
+export type McpMode = 'live' | 'sandbox' | 'public';
+
+export function modeFromApiKey(apiKey?: string): McpMode {
+  const key = apiKey?.trim() ?? '';
+  if (key.startsWith('ak_test_')) return 'sandbox';
+  if (key) return 'live';
+  return 'public';
+}
+
 export interface ToolContext {
   /** Present when API key and secret are configured */
   client?: OrcaRail;
   apiBase: string;
   organizationId?: string;
+  mode: McpMode;
+  apiKey?: string;
+  apiSecret?: string;
 }
 
 export interface ToolDefinition {
@@ -29,6 +45,8 @@ export interface ToolDefinition {
   requiresAuth: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   inputSchema: z.ZodObject<any>;
+  /** Only registered for sandbox (`ak_test_`) keys. */
+  sandboxOnly?: boolean;
   handler: (args: Record<string, unknown>, ctx: ToolContext) => Promise<unknown>;
 }
 

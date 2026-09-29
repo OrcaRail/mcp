@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { parseConfig } from '../src/config';
-import { createServer } from '../src/server';
-import { ALL_TOOLS, listToolNames, selectTools } from '../src/tools';
+import { createServer, modeInstructions, toolAnnotations } from '../src/server';
+import { ALL_TOOLS, listToolNames, modeFromApiKey, selectTools } from '../src/tools';
 import { DEFAULT_API_BASE, MISSING_CREDENTIALS_MESSAGE } from '../src/tools/types';
 import { errorResult } from '../src/result';
 
@@ -81,13 +81,18 @@ describe('tool registration', () => {
     expect(names).toContain('rates.list_currencies');
     expect(names).toContain('pay.get_by_slug');
     expect(names).toContain('pay.cancel_by_slug');
+    expect(names).toContain('account.get_mode');
+    expect(names).toContain('payment_intents.simulate');
     expect(names.length).toBe(ALL_TOOLS.length);
-    expect(names.length).toBe(25);
+    expect(names.length).toBe(27);
   });
 
   it('marks rates and pay public; other tools require auth', () => {
     for (const tool of ALL_TOOLS) {
-      const isPublic = tool.name.startsWith('rates.') || tool.name.startsWith('pay.');
+      const isPublic =
+        tool.name.startsWith('rates.') ||
+        tool.name.startsWith('pay.') ||
+        tool.name === 'account.get_mode';
       expect(tool.requiresAuth).toBe(!isPublic);
     }
   });
@@ -113,7 +118,60 @@ describe('tool registration', () => {
     const { tools, ctx } = createServer({ tools: 'all' });
     expect(ctx.client).toBeUndefined();
     expect(ctx.apiBase).toBe(DEFAULT_API_BASE);
-    expect(tools.length).toBe(ALL_TOOLS.length);
+    // Sandbox-only tools (payment_intents.simulate) need an ak_test_ key.
+    expect(tools.length).toBe(ALL_TOOLS.filter((t) => !t.sandboxOnly).length);
+  });
+});
+
+describe('live vs sandbox mode', () => {
+  it('detects the mode from the key prefix', () => {
+    expect(modeFromApiKey('ak_test_abc')).toBe('sandbox');
+    expect(modeFromApiKey('ak_live_abc')).toBe('live');
+    expect(modeFromApiKey(undefined)).toBe('public');
+  });
+
+  it('registers payment_intents.simulate only for sandbox keys', () => {
+    const sandbox = createServer({ apiKey: 'ak_test_1', apiSecret: 'sk_test_1', tools: 'all' });
+    const live = createServer({ apiKey: 'ak_live_1', apiSecret: 'sk_live_1', tools: 'all' });
+    expect(sandbox.tools.map((t) => t.name)).toContain('payment_intents.simulate');
+    expect(live.tools.map((t) => t.name)).not.toContain('payment_intents.simulate');
+  });
+
+  it('tells the agent whether real funds are involved', () => {
+    expect(modeInstructions('sandbox')).toMatch(/SANDBOX.*no real funds/);
+    expect(modeInstructions('live')).toMatch(/LIVE.*real funds.*Confirm with the user/);
+  });
+
+  it('account.get_mode reports the mode without credentials checks', async () => {
+    const { tools, ctx } = createServer({
+      apiKey: 'ak_test_1234abcd',
+      apiSecret: 'sk_test_1',
+      organizationId: 'org-sb',
+      tools: 'all',
+    });
+    const tool = tools.find((t) => t.name === 'account.get_mode')!;
+    await expect(tool.handler({}, ctx)).resolves.toMatchObject({
+      mode: 'sandbox',
+      livemode: false,
+      organizationId: 'org-sb',
+      keyPrefix: 'ak_test_1234',
+    });
+  });
+
+  it('annotates read-only and destructive tools', () => {
+    expect(toolAnnotations('payment_intents.retrieve')).toEqual({
+      readOnlyHint: true,
+      destructiveHint: false,
+    });
+    expect(toolAnnotations('rates.get_fiat_quote').readOnlyHint).toBe(true);
+    expect(toolAnnotations('subscriptions.cancel')).toEqual({
+      readOnlyHint: false,
+      destructiveHint: true,
+    });
+    expect(toolAnnotations('products.create')).toEqual({
+      readOnlyHint: false,
+      destructiveHint: false,
+    });
   });
 });
 

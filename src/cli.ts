@@ -10,7 +10,11 @@ async function main(): Promise<void> {
   }
 
   const config = parseConfig(argv);
-  const { server } = createServer(config);
+  const { server, ctx } = createServer(config);
+  // stderr only: stdout is the MCP stdio channel.
+  process.stderr.write(
+    `OrcaRail MCP: ${ctx.mode.toUpperCase()} mode${ctx.mode === 'live' ? ' (real funds)' : ctx.mode === 'sandbox' ? ' (testnets, no real funds)' : ''}\n`
+  );
   await startStdioServer(server);
 }
 
