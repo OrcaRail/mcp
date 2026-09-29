@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-29
+
 ### Added
 
 - Live vs sandbox awareness. The mode comes from the API key: `ak_test_` means a sandbox organization (testnets, no real funds), `ak_live_` means live (real funds).
@@ -15,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New `payment_intents.simulate` tool completes a payment without a wallet. It is registered only for sandbox keys.
   - Tool annotations: `readOnlyHint` on list/retrieve/rates tools, `destructiveHint` on cancel/delete/deactivate/complete/confirm.
   - The startup line on stderr shows the mode.
+
+### Removed
+
+- `livemode` input on `products.create` / `products.update`: it follows the organization (the API ignored it).
 
 ## [1.1.2] - 2026-09-25
 
