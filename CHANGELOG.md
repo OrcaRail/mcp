@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-10-24
+
+### Security
+
+- Dev tooling upgraded (Vitest 4, typescript-eslint 8, esbuild 0.28). `npm audit` reports 0 issues.
+
 ## [1.2.0] - 2026-09-29
 
 ### Added
