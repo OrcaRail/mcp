@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.1] - 2026-10-24
 
+### Changed
+
+- Requires Node.js 20 or newer (Node 18 reached end-of-life in April 2025). CI tests Node 20, 22 and 24.
+
 ### Security
 
 - Dev tooling upgraded (Vitest 4, typescript-eslint 8, esbuild 0.28). `npm audit` reports 0 issues.
