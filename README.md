@@ -151,7 +151,7 @@ Tool names follow `resource.action`. Responses are raw OrcaRail API objects as J
 | `payment_intents.retrieve` | `id` | Fetch current status |
 | `payment_intents.update` | `id` + any updatable field | Update before confirmation |
 | `payment_intents.confirm` | `id`, `client_secret`, `return_url` | Confirm and get the hosted pay redirect URL |
-| `payment_intents.complete` | `id` | Mark processing after the customer hits your success URL |
+| `payment_intents.complete` | `id` | **Required** after the customer returns to your success URL: completes the intent once the payment is confirmed (until then it is not final or withdrawable); call again while it is still `processing` |
 | `payment_intents.cancel` | `id` | Cancel the intent |
 | `payment_intents.simulate` | `id` | **Sandbox keys only.** Complete the payment without a wallet, firing the usual webhooks |
 

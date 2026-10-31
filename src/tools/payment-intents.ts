@@ -94,7 +94,7 @@ export const paymentIntentTools: ToolDefinition[] = [
   {
     name: 'payment_intents.complete',
     description:
-      'Mark a Payment Intent as processing after the customer returns to your success URL',
+      'Required after the customer returns to your success URL: completes the Payment Intent once its payment is confirmed (until then the payment is not final or withdrawable); call again while it is still processing',
     requiresAuth: true,
     inputSchema: z.object({
       id: z.string().describe('Payment Intent ID'),

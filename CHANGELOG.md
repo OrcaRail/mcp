@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-10-31
+
+### Changed
+
+- `payment_intents.complete` description: the call is required once the customer returns; until then a paid intent stays `processing` and the payment is not final or withdrawable.
+
 ## [1.2.1] - 2026-10-24
 
 ### Changed
