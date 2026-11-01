@@ -65,7 +65,7 @@ npx -y @orcarail/mcp \
   --api-key=... --api-secret=...
 ```
 
-Self-hosted or local API:
+Local API (development):
 
 ```bash
 npx -y @orcarail/mcp --tools=all --api-base=http://127.0.0.1:3000/api/v1 --api-key=... --api-secret=...
