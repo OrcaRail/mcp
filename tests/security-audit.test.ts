@@ -26,8 +26,8 @@ describe('MCP tool id inputs (MCP-1)', () => {
     expect(idFields.length).toBeGreaterThan(10);
   });
 
-  it.fails.each(idFields)('MCP-1: %s rejects path-changing values', (_name, field) => {
-    for (const unsafe of ['../subscriptions?limit=100', '..', 'a/b', 'x#y', '']) {
+  it.each(idFields)('MCP-1: %s rejects path-changing values', (_name, field) => {
+    for (const unsafe of ['../subscriptions?limit=100', '..', '.', 'a/b', 'a\\b', 'x#y', 'x?y', '', '  ', '%2e%2e', 'x\0y']) {
       expect(field.safeParse(unsafe).success, JSON.stringify(unsafe)).toBe(false);
     }
   });

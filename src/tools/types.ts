@@ -1,7 +1,16 @@
 import type OrcaRail from '@orcarail/node';
-import type { z } from 'zod';
+import { z } from 'zod';
 
 export const DEFAULT_API_BASE = 'https://api.orcarail.com/api/v1';
+
+/**
+ * A resource id or slug that goes into a URL path. Tool arguments come from the model, which a
+ * prompt injection can steer, and the SDK puts ids into paths as-is, so only id characters pass:
+ * `../subscriptions?limit=100` or `%2e%2e` cannot reach an endpoint outside --tools (MCP-1).
+ */
+export const pathId = z
+  .string()
+  .regex(/^[A-Za-z0-9_-]{1,128}$/, 'Must be an id: letters, digits, "_" or "-" only');
 
 export const MISSING_CREDENTIALS_MESSAGE =
   'Missing credentials for this tool. Set ORCARAIL_API_KEY and ORCARAIL_API_SECRET (or pass --api-key / --api-secret).';

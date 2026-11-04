@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Tool arguments that go into URL paths (`id`, `slug`, `organization_id`, `price_id`, `product_id`) now accept only letters, digits, `_` and `-`. A prompt-injected value such as `../subscriptions?limit=100` could otherwise reach endpoints outside the `--tools` allowlist.
+
 ## [1.2.2] - 2026-10-31
 
 ### Changed

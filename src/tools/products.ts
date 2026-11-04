@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { ToolDefinition } from './types';
-import { requireClient, resolveOrganizationId } from './types';
+import { requireClient, resolveOrganizationId, pathId } from './types';
 
 const metadataSchema = z.record(z.unknown()).optional();
 
@@ -10,8 +10,7 @@ export const productTools: ToolDefinition[] = [
     description: 'List catalog products for an organization',
     requiresAuth: true,
     inputSchema: z.object({
-      organization_id: z
-        .string()
+      organization_id: pathId
         .optional()
         .describe('Organization ID (falls back to --organization-id)'),
     }),
@@ -25,8 +24,7 @@ export const productTools: ToolDefinition[] = [
     description: 'Create a catalog product',
     requiresAuth: true,
     inputSchema: z.object({
-      organization_id: z
-        .string()
+      organization_id: pathId
         .optional()
         .describe('Organization ID (falls back to --organization-id)'),
       name: z.string(),
@@ -56,11 +54,10 @@ export const productTools: ToolDefinition[] = [
     description: 'Update a catalog product',
     requiresAuth: true,
     inputSchema: z.object({
-      organization_id: z
-        .string()
+      organization_id: pathId
         .optional()
         .describe('Organization ID (falls back to --organization-id)'),
-      product_id: z.string().describe('Product ID'),
+      product_id: pathId.describe('Product ID'),
       name: z.string().optional(),
       description: z.string().nullable().optional(),
       active: z.boolean().optional(),
@@ -92,11 +89,10 @@ export const productTools: ToolDefinition[] = [
       'deleting it, use products.update with active: false instead.',
     requiresAuth: true,
     inputSchema: z.object({
-      organization_id: z
-        .string()
+      organization_id: pathId
         .optional()
         .describe('Organization ID (falls back to --organization-id)'),
-      product_id: z.string().describe('Product ID'),
+      product_id: pathId.describe('Product ID'),
     }),
     handler: async (args, ctx) => {
       const orgId = resolveOrganizationId(

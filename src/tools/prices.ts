@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { ToolDefinition } from './types';
-import { requireClient, resolveOrganizationId } from './types';
+import { requireClient, resolveOrganizationId, pathId } from './types';
 
 const metadataSchema = z.record(z.unknown()).optional();
 
@@ -10,8 +10,7 @@ export const priceTools: ToolDefinition[] = [
     description: 'List catalog prices for an organization',
     requiresAuth: true,
     inputSchema: z.object({
-      organization_id: z
-        .string()
+      organization_id: pathId
         .optional()
         .describe('Organization ID (falls back to --organization-id)'),
       active: z.boolean().optional(),
@@ -33,8 +32,7 @@ export const priceTools: ToolDefinition[] = [
     description: 'Create a catalog price (one-time or recurring)',
     requiresAuth: true,
     inputSchema: z.object({
-      organization_id: z
-        .string()
+      organization_id: pathId
         .optional()
         .describe('Organization ID (falls back to --organization-id)'),
       product: z.string().optional().describe('Existing product ID'),
@@ -80,11 +78,10 @@ export const priceTools: ToolDefinition[] = [
     description: 'Update a catalog price',
     requiresAuth: true,
     inputSchema: z.object({
-      organization_id: z
-        .string()
+      organization_id: pathId
         .optional()
         .describe('Organization ID (falls back to --organization-id)'),
-      price_id: z.string().describe('Price ID'),
+      price_id: pathId.describe('Price ID'),
       product: z.string().optional(),
       nickname: z.string().nullable().optional(),
       unit_amount_decimal: z.string().optional(),
@@ -122,11 +119,10 @@ export const priceTools: ToolDefinition[] = [
       'prices.update active: true.',
     requiresAuth: true,
     inputSchema: z.object({
-      organization_id: z
-        .string()
+      organization_id: pathId
         .optional()
         .describe('Organization ID (falls back to --organization-id)'),
-      price_id: z.string().describe('Price ID'),
+      price_id: pathId.describe('Price ID'),
     }),
     handler: async (args, ctx) => {
       const orgId = resolveOrganizationId(

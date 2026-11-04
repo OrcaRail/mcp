@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { ToolDefinition } from './types';
+import { pathId } from './types';
 import { publicGet, publicPost } from '../public-api';
 
 export const payTools: ToolDefinition[] = [
@@ -8,7 +9,7 @@ export const payTools: ToolDefinition[] = [
     description: 'Get pay / payment intent details by hosted pay slug',
     requiresAuth: false,
     inputSchema: z.object({
-      slug: z.string().describe('Pay slug from the payment link URL'),
+      slug: pathId.describe('Pay slug from the payment link URL'),
     }),
     handler: async (args, ctx) => {
       if (ctx.client) {
@@ -25,7 +26,7 @@ export const payTools: ToolDefinition[] = [
       'To cancel by Payment Intent ID with credentials, use payment_intents.cancel.',
     requiresAuth: false,
     inputSchema: z.object({
-      slug: z.string().describe('Pay slug from the payment link URL'),
+      slug: pathId.describe('Pay slug from the payment link URL'),
     }),
     handler: async (args, ctx) => {
       if (ctx.client) {

@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { ToolDefinition } from './types';
-import { requireClient } from './types';
+import { requireClient, pathId } from './types';
 
 const metadataSchema = z.record(z.unknown()).nullable().optional();
 const withdrawalAddressesSchema = z.record(z.string()).optional();
@@ -23,7 +23,7 @@ export const paymentIntentTools: ToolDefinition[] = [
       expires_at: z.string().nullable().optional(),
       payment_method_types: z.array(z.string()).optional(),
       withdrawal_addresses: withdrawalAddressesSchema,
-      price_id: z.string().optional().describe('Catalog price UUID'),
+      price_id: pathId.optional().describe('Catalog price UUID'),
       amount: z.string().optional().describe('Amount e.g. "100.00"'),
       currency: z.string().optional().describe('Currency code e.g. "usd"'),
       tokenId: z.string().optional().describe('Token UUID'),
@@ -41,7 +41,7 @@ export const paymentIntentTools: ToolDefinition[] = [
     description: 'Retrieve a Payment Intent by ID',
     requiresAuth: true,
     inputSchema: z.object({
-      id: z.string().describe('Payment Intent ID'),
+      id: pathId.describe('Payment Intent ID'),
     }),
     handler: async (args, ctx) => {
       return requireClient(ctx).paymentIntents.retrieve(String(args.id));
@@ -52,8 +52,8 @@ export const paymentIntentTools: ToolDefinition[] = [
     description: 'Update a Payment Intent before confirmation',
     requiresAuth: true,
     inputSchema: z.object({
-      id: z.string().describe('Payment Intent ID'),
-      price_id: z.string().optional(),
+      id: pathId.describe('Payment Intent ID'),
+      price_id: pathId.optional(),
       amount: z.string().optional(),
       currency: z.string().optional(),
       payment_method_types: z.array(z.string()).optional(),
@@ -80,7 +80,7 @@ export const paymentIntentTools: ToolDefinition[] = [
     description: 'Confirm a Payment Intent and get the hosted pay redirect URL',
     requiresAuth: true,
     inputSchema: z.object({
-      id: z.string().describe('Payment Intent ID'),
+      id: pathId.describe('Payment Intent ID'),
       client_secret: z.string().describe('Client secret from create/retrieve'),
       return_url: z.string().describe('Return URL after payment'),
     }),
@@ -97,7 +97,7 @@ export const paymentIntentTools: ToolDefinition[] = [
       'Required after the customer returns to your success URL: completes the Payment Intent once its payment is confirmed (until then the payment is not final or withdrawable); call again while it is still processing',
     requiresAuth: true,
     inputSchema: z.object({
-      id: z.string().describe('Payment Intent ID'),
+      id: pathId.describe('Payment Intent ID'),
     }),
     handler: async (args, ctx) => {
       return requireClient(ctx).paymentIntents.complete(String(args.id));
@@ -111,7 +111,7 @@ export const paymentIntentTools: ToolDefinition[] = [
       'hosted pay slug without credentials, use pay.cancel_by_slug.',
     requiresAuth: true,
     inputSchema: z.object({
-      id: z.string().describe('Payment Intent ID'),
+      id: pathId.describe('Payment Intent ID'),
     }),
     handler: async (args, ctx) => {
       return requireClient(ctx).paymentIntents.cancel(String(args.id));
@@ -126,7 +126,7 @@ export const paymentIntentTools: ToolDefinition[] = [
     requiresAuth: true,
     sandboxOnly: true,
     inputSchema: z.object({
-      id: z.string().describe('Payment intent id'),
+      id: pathId.describe('Payment intent id'),
     }),
     handler: async (args, ctx) => {
       requireClient(ctx);
