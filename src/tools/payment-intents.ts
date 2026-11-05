@@ -138,6 +138,7 @@ export const paymentIntentTools: ToolDefinition[] = [
             Authorization: `Basic ${Buffer.from(`${ctx.apiKey}:${ctx.apiSecret}`).toString('base64')}`,
             'Content-Type': 'application/json',
           },
+          signal: AbortSignal.timeout(30_000),
         }
       );
       const body = await res.json().catch(() => null);

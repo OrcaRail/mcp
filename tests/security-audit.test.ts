@@ -69,7 +69,7 @@ describe('MCP tool annotations (MCP-2)', () => {
 describe('MCP transport (MCP-3)', () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it.fails('MCP-3: refuses a plain-http api base outside localhost', () => {
+  it('MCP-3: refuses a plain-http api base outside localhost', () => {
     expect(() =>
       parseConfig([
         '--api-key=ak_test_1',
@@ -89,7 +89,7 @@ describe('MCP transport (MCP-3)', () => {
     ).not.toThrow();
   });
 
-  it.fails('MCP-3: payment_intents.simulate sets a request timeout', async () => {
+  it('MCP-3: payment_intents.simulate sets a request timeout', async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ id: 'pi_1' }),
