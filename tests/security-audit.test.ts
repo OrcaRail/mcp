@@ -43,7 +43,7 @@ describe('MCP tool id inputs (MCP-1)', () => {
  * only additive `.create` tools may be non-destructive.
  */
 describe('MCP tool annotations (MCP-2)', () => {
-  it.fails.each([
+  it.each([
     'payment_intents.update',
     'subscriptions.update',
     'subscriptions.resume',

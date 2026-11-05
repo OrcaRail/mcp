@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- `destructiveHint` is now `true` for every write tool except the additive `*.create` tools, as the MCP spec defines it. `*.update`, `subscriptions.resume` and `payment_intents.simulate` change existing resources and were marked non-destructive, so clients could skip their confirmation prompt.
 - Tool arguments that go into URL paths (`id`, `slug`, `organization_id`, `price_id`, `product_id`) now accept only letters, digits, `_` and `-`. A prompt-injected value such as `../subscriptions?limit=100` could otherwise reach endpoints outside the `--tools` allowlist.
 
 ## [1.2.2] - 2026-10-31

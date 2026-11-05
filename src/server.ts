@@ -94,9 +94,14 @@ export function modeInstructions(mode: McpMode): string {
 }
 
 const READ_ONLY_TOOL = /\.(list|retrieve|get_[a-z_]+|list_[a-z_]+)$|^rates\./;
-const DESTRUCTIVE_TOOL = /\.(cancel|cancel_by_slug|delete|deactivate|complete|confirm)$/;
+/** Tools that only add new records. Everything else that writes changes existing state. */
+const ADDITIVE_TOOL = /\.create$/;
 
-/** MCP tool hints so clients can gate writes. */
+/**
+ * MCP tool hints so clients can gate writes. Per the MCP spec, destructiveHint is false only
+ * for tools that perform additive updates: update, resume and simulate change existing
+ * resources (and can move money), so they are destructive like cancel or delete.
+ */
 export function toolAnnotations(name: string): {
   readOnlyHint: boolean;
   destructiveHint: boolean;
@@ -104,7 +109,7 @@ export function toolAnnotations(name: string): {
   const readOnly = READ_ONLY_TOOL.test(name) || name === 'account.get_mode';
   return {
     readOnlyHint: readOnly,
-    destructiveHint: !readOnly && DESTRUCTIVE_TOOL.test(name),
+    destructiveHint: !readOnly && !ADDITIVE_TOOL.test(name),
   };
 }
 
