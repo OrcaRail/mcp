@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.3.0] - 2026-11-09
+
+### Security
+
+- `--api-base` / `ORCARAIL_API_BASE` must use https; plain http is accepted only for `localhost`, `127.0.0.1` and `[::1]`. The API key and secret are sent as HTTP Basic auth on every request. `payment_intents.simulate` now times out after 30 seconds.
+- `destructiveHint` is now `true` for every write tool except the additive `*.create` tools, as the MCP spec defines it. `*.update`, `subscriptions.resume` and `payment_intents.simulate` change existing resources and were marked non-destructive, so clients could skip their confirmation prompt.
+- Tool arguments that go into URL paths (`id`, `slug`, `organization_id`, `price_id`, `product_id`) now accept only letters, digits, `_` and `-`. A prompt-injected value such as `../subscriptions?limit=100` could otherwise reach endpoints outside the `--tools` allowlist.
 
 ## [1.2.2] - 2026-10-31
 

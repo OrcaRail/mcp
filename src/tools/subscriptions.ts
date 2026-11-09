@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { ToolDefinition } from './types';
-import { requireClient } from './types';
+import { requireClient, pathId } from './types';
 
 const dateFilter = z
   .object({
@@ -40,7 +40,7 @@ export const subscriptionTools: ToolDefinition[] = [
       metadata: metadataSchema,
       return_url: z.string().optional(),
       cancel_url: z.string().optional(),
-      price_id: z.string().optional(),
+      price_id: pathId.optional(),
       interval: z.enum(['day', 'week', 'month', 'year']).optional(),
       interval_count: z.number().optional(),
       amount: z.string().optional(),
@@ -60,7 +60,7 @@ export const subscriptionTools: ToolDefinition[] = [
     description: 'Retrieve a subscription by ID',
     requiresAuth: true,
     inputSchema: z.object({
-      id: z.string().describe('Subscription ID'),
+      id: pathId.describe('Subscription ID'),
     }),
     handler: async (args, ctx) => {
       return requireClient(ctx).subscriptions.retrieve(String(args.id));
@@ -71,8 +71,8 @@ export const subscriptionTools: ToolDefinition[] = [
     description: 'Update a subscription',
     requiresAuth: true,
     inputSchema: z.object({
-      id: z.string().describe('Subscription ID'),
-      price_id: z.string().optional(),
+      id: pathId.describe('Subscription ID'),
+      price_id: pathId.optional(),
       description: z.string().optional(),
       amount: z.string().optional(),
       currency: z.string().optional(),
@@ -112,7 +112,7 @@ export const subscriptionTools: ToolDefinition[] = [
       'Returns the subscription object.',
     requiresAuth: true,
     inputSchema: z.object({
-      id: z.string().describe('Subscription ID'),
+      id: pathId.describe('Subscription ID'),
       cancellation_details: z
         .object({
           comment: z.string().optional(),
@@ -137,7 +137,7 @@ export const subscriptionTools: ToolDefinition[] = [
     description: 'Resume a paused subscription',
     requiresAuth: true,
     inputSchema: z.object({
-      id: z.string().describe('Subscription ID'),
+      id: pathId.describe('Subscription ID'),
     }),
     handler: async (args, ctx) => {
       return requireClient(ctx).subscriptions.resume(String(args.id));
@@ -171,7 +171,7 @@ export const subscriptionTools: ToolDefinition[] = [
     description: 'List payment links (cycle invoices) for a subscription',
     requiresAuth: true,
     inputSchema: z.object({
-      id: z.string().describe('Subscription ID'),
+      id: pathId.describe('Subscription ID'),
       limit: z.number().optional(),
       starting_after: z.string().optional(),
       ending_before: z.string().optional(),

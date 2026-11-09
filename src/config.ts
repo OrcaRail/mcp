@@ -25,6 +25,26 @@ function parseTools(raw: string | undefined): McpConfig['tools'] {
   return new Set(names);
 }
 
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
+
+/**
+ * The API key and secret go out as HTTP Basic auth, so the API base must use https;
+ * plain http is allowed only for a local API (MCP-3).
+ */
+function checkApiBase(apiBase: string): string {
+  let url: URL;
+  try {
+    url = new URL(apiBase);
+  } catch {
+    throw new Error(`Invalid --api-base URL: ${apiBase}`);
+  }
+  if (url.protocol === 'https:') return apiBase;
+  if (url.protocol === 'http:' && LOCAL_HOSTS.has(url.hostname)) return apiBase;
+  throw new Error(
+    '--api-base must use https (plain http is allowed only for localhost), because the API key and secret are sent with every request.'
+  );
+}
+
 /**
  * Parse CLI args and environment into MCP config.
  * Flags: --api-key, --api-secret, --api-base, --organization-id, --tools
@@ -48,7 +68,7 @@ export function parseConfig(argv: string[] = process.argv.slice(2)): McpConfig {
   return {
     apiKey: apiKey || undefined,
     apiSecret: apiSecret || undefined,
-    apiBase: apiBase || undefined,
+    apiBase: apiBase ? checkApiBase(apiBase) : undefined,
     organizationId: organizationId || undefined,
     tools,
   };
