@@ -2,7 +2,7 @@
 
 Official [Model Context Protocol](https://modelcontextprotocol.io/) (MCP) server for [OrcaRail](https://orcarail.com) — accept crypto payments from your AI coding agent.
 
-Runs locally over stdio and wraps the [`@orcarail/node`](https://www.npmjs.com/package/@orcarail/node) SDK, so Claude Code, Cursor, Codex, and any other MCP client can create payment intents, manage subscriptions, maintain your product catalog, and look up exchange rates — the same delivery model as Stripe's `@stripe/mcp`.
+Runs locally over stdio and wraps the [`@orcarail/node`](https://www.npmjs.com/package/@orcarail/node) SDK, so Claude Code, Cursor, Codex, and any other MCP client can create payment intents, manage subscriptions, maintain your product catalog, and look up exchange rates.
 
 - **Docs:** [docs.orcarail.com/docs/integration/mcp](https://docs.orcarail.com/docs/integration/mcp/)
 - **Dashboard:** [app.orcarail.com](https://app.orcarail.com)
