@@ -79,7 +79,8 @@ export function printUsage(): void {
 
 Options:
   --api-key=KEY              OrcaRail API key (or ORCARAIL_API_KEY)
-  --api-secret=SECRET        OrcaRail API secret (or ORCARAIL_API_SECRET)
+  --api-secret=SECRET        OrcaRail API secret; prefer ORCARAIL_API_SECRET
+                             (flags are visible to other users in \`ps\`)
   --api-base=URL             Optional API base URL (or ORCARAIL_API_BASE)
   --organization-id=ID       Default organization for catalog tools
   --tools=all|a,b,c          Tool filter (default: all)
@@ -89,7 +90,7 @@ Private tools require ORCARAIL_API_KEY and ORCARAIL_API_SECRET (or the flags abo
 
 Examples:
   npx -y @orcarail/mcp --tools=all
-  npx -y @orcarail/mcp --tools=all --api-key=ak_live_xxx --api-secret=sk_live_xxx
-  npx -y @orcarail/mcp --tools=payment_intents.create,subscriptions.list --api-key=...
+  ORCARAIL_API_KEY=ak_live_xxx ORCARAIL_API_SECRET=sk_live_xxx npx -y @orcarail/mcp --tools=all
+  npx -y @orcarail/mcp --tools=payment_intents.create,subscriptions.list
 `);
 }
