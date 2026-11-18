@@ -37,11 +37,7 @@ export ORCARAIL_API_SECRET=sk_live_xxx
 npx -y @orcarail/mcp --tools=all
 ```
 
-Or pass flags:
-
-```bash
-npx -y @orcarail/mcp --tools=all --api-key=ak_live_xxx --api-secret=sk_live_xxx
-```
+The `--api-key` and `--api-secret` flags also work, but any other user on the same machine can read command-line flags in the process list (`ps`). Pass the secret through the environment.
 
 The server speaks MCP over stdin/stdout; it is meant to be launched by an MCP client, not used interactively. `npx -y @orcarail/mcp --help` prints usage.
 
@@ -52,7 +48,7 @@ Every option is a CLI flag or an environment variable. Flags win. Prefer env for
 | Flag | Environment variable | Required | Description |
 | --- | --- | --- | --- |
 | `--api-key` | `ORCARAIL_API_KEY` | For private tools | API key (`ak_…`) |
-| `--api-secret` | `ORCARAIL_API_SECRET` | For private tools | API secret (`sk_…`) |
+| `--api-secret` | `ORCARAIL_API_SECRET` | For private tools | API secret (`sk_…`). Use the environment variable: a flag is visible in the process list |
 | `--api-base` | `ORCARAIL_API_BASE` | No | API base URL. Default `https://api.orcarail.com/api/v1` |
 | `--organization-id` | `ORCARAIL_ORGANIZATION_ID` | No | Default organization for `products.*` / `prices.*` tools |
 | `--tools` | — | No | `all` (default) or comma-separated tool names |
@@ -61,25 +57,20 @@ Restrict what the agent can do:
 
 ```bash
 npx -y @orcarail/mcp \
-  --tools=payment_intents.create,payment_intents.retrieve,subscriptions.list \
-  --api-key=... --api-secret=...
+  --tools=payment_intents.create,payment_intents.retrieve,subscriptions.list
 ```
 
 Local API (development):
 
 ```bash
-npx -y @orcarail/mcp --tools=all --api-base=http://127.0.0.1:3000/api/v1 --api-key=... --api-secret=...
+npx -y @orcarail/mcp --tools=all --api-base=http://127.0.0.1:3000/api/v1
 ```
 
 ## Client setup
 
 ### Claude Code
 
-```bash
-claude mcp add orcarail -- npx -y @orcarail/mcp --tools=all --api-key=ak_live_xxx --api-secret=sk_live_xxx
-```
-
-Or pass secrets via env:
+Pass the credentials as environment variables:
 
 ```bash
 claude mcp add orcarail \
@@ -249,7 +240,7 @@ npm run lint        # eslint
 Test against a local MCP inspector:
 
 ```bash
-npx @modelcontextprotocol/inspector node dist/cli.cjs --tools=all --api-key=ak_test_xxx --api-secret=sk_test_xxx
+ORCARAIL_API_KEY=ak_test_xxx ORCARAIL_API_SECRET=sk_test_xxx npx @modelcontextprotocol/inspector node dist/cli.cjs --tools=all
 ```
 
 ## Related
